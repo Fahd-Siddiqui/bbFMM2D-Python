@@ -20,12 +20,12 @@ from CustomKernels import CustomKernels
 from H2_2D_Tree import H2_2D_Tree
 from kernel_Base import calculate_Potential
 
-# GET INPUT DATA FROM DATA FILE ---------------------------------------------------------------------------------------#
+# GET INPUT DATA FROM DATA FILE -------------------------------------------------------------------------------------- #
 # Read data from input file
 Data = loadtxt('Input//input.txt')
 
-location = Data[0:2000, 0:2]    # Locations of the charges matrix
-charges = Data[0:2000, 2:]      # Sets of charges
+location = Data[0:10000, 0:2]    # Locations of the charges matrix
+charges = Data[0:10000, 2:]      # Sets of charges
 N = len(location)               # Number of points
 m = charges.shape[1]            # Sets of charge vectors
 nChebNodes = 5                  # Number of Chebyshev nodes( >= 3)
@@ -34,7 +34,7 @@ print(' Number of charges: %d ' % N)
 print(' Number of sets of charges: %d ' % m)
 print(' Number of Chebyshev Nodes: %d ' % nChebNodes)
 
-# FAST MATRIX VECTOR PRODUCT-------------------------------------------------------------------------------------------#
+# FAST MATRIX VECTOR PRODUCT ----------------------------------------------------------------------------------------- #
 # 1 Building FMM Tree
 start = perf_counter()
 ATree = H2_2D_Tree(nChebNodes, charges, location, N, m)     # FMM Tree
@@ -42,11 +42,11 @@ print(' Total time taken for FMM(build tree) is: %f  seconds' % (perf_counter() 
 
 # 2 Calculating Potential
 start = perf_counter()
-kex1 = CustomKernels.exampleKernelA                         # Name of custom kernel
+kex1 = CustomKernels.exampleKernelB                         # Name of custom kernel
 potential_kex1 = calculate_Potential(kex1, ATree, charges)
 print(' Total time taken for FMM(calculations) is: %f seconds' % (perf_counter() - start))
 
-# EXACT MATRIX VECTOR PRODUCT -----------------------------------------------------------------------------------------#
+# EXACT MATRIX VECTOR PRODUCT ---------------------------------------------------------------------------------------- #
 # Calculate potential Exact
 start = perf_counter()
 print('\n Starting exact computation...')

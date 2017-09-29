@@ -14,8 +14,8 @@
 
 ########################################################################################################################
 
-from math import sqrt
-from numpy import zeros
+from numpy import zeros, indices, sqrt
+import math
 
 
 # import other modules as necessary
@@ -28,21 +28,24 @@ class CustomKernels:
     @staticmethod
     def exampleKernelA(M, x, N, y):
         """Example kernel function A"""
+		# Euclidean norm function implemented using for loops. DO NOT USE EXTREMELY SLOW.
         kernel = zeros([M, N])
         for i in range(0, M):
             for j in range(0, N):
                 # Define the custom kernel function here
-                kernel[i, j] = sqrt((x[i, 0] - y[j, 0]) ** 2 + (x[i, 1] - y[j, 1]) ** 2)
+                kernel[i, j] = math.sqrt((x[i, 0] - y[j, 0]) ** 2 + (x[i, 1] - y[j, 1]) ** 2)
         return kernel
 
     # ---------------------------------------------------------------------------------------------------------------- #
     @staticmethod
     def exampleKernelB(M, x, N, y):
         """Example kernel function B"""
-        kernel = zeros([M, N])
-        for i in range(0, M):
-            for j in range(0, N):
-                kernel[i, j] = ((x[i, 0] - y[j, 0]) ** 2 + (x[i, 1] - y[j, 1]) ** 2)
+		# Euclidean norm function implemented using meshgrid idea.
+		# Python way of defining it and much(100 times) faster than using for loops
+        i, j=indices((M,N))
+        kernel = zeros((M, N))
+		# Define custom kernel here
+        kernel[i, j] = sqrt((x[i, 0] - y[j, 0]) ** 2 + (x[i, 1] - y[j, 1]) ** 2)
         return kernel
 
 # Define more custom kernel functions here

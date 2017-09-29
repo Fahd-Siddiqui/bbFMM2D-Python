@@ -13,7 +13,7 @@
 ########################################################################################################################
 
 ########################################################################################################################
-from numpy import zeros, dot, append, delete, empty
+from numpy import zeros, dot
 
 
 # -------------------------------------------------------------------------------------------------------------------- #
@@ -156,18 +156,31 @@ def calculate_NodePotential_From_Wellseparated_Clusters(custom_Kernel, node, nCh
 # -------------------------------------------------------------------------------------------------------------------- #
 def kernel_Cheb_2D(custom_Kernel, M, xVec, N, yVec):
     """Evaluate kernel at Chebyshev nodes"""
-    mbym = empty((1, 2))
-    nbyn = empty((1, 2))
-    for j in range(0, M):
-        for i in range(0, M):
-            mbym = append(mbym, [[xVec[i, 0], xVec[j, 1]]], axis=0)
+    # from numpy import append, delete, empty
+    # mbym = empty((1, 2))
+    # nbyn = empty((1, 2))
+    # for j in range(0, M):
+    #     for i in range(0, M):
+    #         mbym = append(mbym, [[xVec[i, 0], xVec[j, 1]]], axis=0)
+    #
+    # for j in range(0, N):
+    #     for i in range(0, N):
+    #         nbyn = append(nbyn, [[yVec[i, 0], yVec[j, 1]]], axis=0)
+    #
+    # mbym = delete(mbym, 0, axis=0)
+    # nbyn = delete(nbyn, 0, axis=0)
 
-    for j in range(0, N):
-        for i in range(0, N):
-            nbyn = append(nbyn, [[yVec[i, 0], yVec[j, 1]]], axis=0)
+    mbym = zeros((M * M, 2))
+    nbyn = zeros((N * N, 2))
 
-    mbym = delete(mbym, 0, axis=0)
-    nbyn = delete(nbyn, 0, axis=0)
+    for i in range(0, M * M, M):
+        mbym[i: i + M, 0] = xVec[0: M, 0]
+        mbym[i: i + M, 1] = xVec[i / M, 1]
+
+    for i in range(0, N * N, N):
+        nbyn[i: i + N, 0] = yVec[0: N, 0]
+        nbyn[i: i + N, 1] = yVec[i / N, 1]
+
     K = custom_Kernel(M * M, mbym, N * N, nbyn)
     return K
 
