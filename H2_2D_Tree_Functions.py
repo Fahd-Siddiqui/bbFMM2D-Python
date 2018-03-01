@@ -14,8 +14,8 @@
 
 ########################################################################################################################
 
-from math import cos, pi
-from numpy import zeros, ones, dot, append
+from math import pi
+from numpy import zeros, ones, dot, append, cos, arange, kron
 from H2_2D_Node import H2_2D_Node
 
 
@@ -23,9 +23,9 @@ from H2_2D_Node import H2_2D_Node
 def get_Standard_Chebyshev_Nodes(nChebNodes):
     """Obtains standard Chebyshev nodes in interval [-1,1] """
     cNode = zeros((nChebNodes, 1))
-    for k in range(0, nChebNodes):
-        cNode[k] = -cos((k + 0.5) * pi / nChebNodes)
-        k += 1
+    # for k in range(0, nChebNodes):
+    #     cNode[k] = -cos((k + 0.5) * pi / nChebNodes)
+    cNode = cos((arange(0, nChebNodes) + .5) * pi / nChebNodes).reshape(nChebNodes, 1)
     return cNode
 
 
@@ -55,14 +55,19 @@ def get_Transfer(nChebNodes, cNode, TNode):
     # for k in range(0, 4):
     R = zeros([4, rank, rank])
 
-    for i in range(0, nChebNodes):
-        for j in range(0, nChebNodes):
-            for k in range(0, nChebNodes):
-                for l in range(0, nChebNodes):
-                    R[0][i * nChebNodes + j, k * nChebNodes + l] = Transfer[0][i, k] * Transfer[0][j, l]
-                    R[1][i * nChebNodes + j, k * nChebNodes + l] = Transfer[0][i, k] * Transfer[1][j, l]
-                    R[2][i * nChebNodes + j, k * nChebNodes + l] = Transfer[1][i, k] * Transfer[0][j, l]
-                    R[3][i * nChebNodes + j, k * nChebNodes + l] = Transfer[1][i, k] * Transfer[1][j, l]
+    R[0] = kron(Transfer[0], Transfer[0])
+    R[1] = kron(Transfer[0], Transfer[1])
+    R[2] = kron(Transfer[1], Transfer[0])
+    R[3] = kron(Transfer[1], Transfer[1])
+
+    # for i in range(0, nChebNodes):
+    #     for j in range(0, nChebNodes):
+    #         for k in range(0, nChebNodes):
+    #             for l in range(0, nChebNodes):
+    #                 R[0][i * nChebNodes + j, k * nChebNodes + l] = Transfer[0][i, k] * Transfer[0][j, l]
+    #                 R[1][i * nChebNodes + j, k * nChebNodes + l] = Transfer[0][i, k] * Transfer[1][j, l]
+    #                 R[2][i * nChebNodes + j, k * nChebNodes + l] = Transfer[1][i, k] * Transfer[0][j, l]
+    #                 R[3][i * nChebNodes + j, k * nChebNodes + l] = Transfer[1][i, k] * Transfer[1][j, l]
 
     return R
 
@@ -133,7 +138,7 @@ def assign_Children(Tree, node, R, nChebNodes, cNode, TNode):
                 node.child[k].parent = node
 
                 node.child[k].center[0, 0] = node.center[0, 0] + ((k % 2) - 0.5) * node.radius[0, 0]
-                node.child[k].center[0, 1] = node.center[0, 1] + (int(k / 2) - 0.5) * node.radius[0, 1]
+                node.child[k].center[0, 1] = node.center[0, 1] + ((k // 2) - 0.5) * node.radius[0, 1]
                 node.child[k].radius = node.radius * 0.5
                 node.child[k].N = 0
 
@@ -200,8 +205,9 @@ def build_Tree(node):
     if not node.isEmpty:
         if not node.isLeaf:
             for i in range(0, 4):
-                for j in range(0, 8):
-                    node.child[i].neighbor[j] = H2_2D_Node(0, 0)
+                node.child[i].neighbor[0:8] = H2_2D_Node(0, 0)
+                # for j in range(0, 8):
+                #    node.child[i].neighbor[j] = H2_2D_Node(0, 0)
             assign_Siblings(node)
             for k in range(0, 8):
                 # if node.neighbor[k] != None:

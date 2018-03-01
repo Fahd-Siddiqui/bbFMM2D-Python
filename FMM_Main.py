@@ -24,8 +24,8 @@ from kernel_Base import calculate_Potential
 # Read data from input file
 Data = loadtxt('Input//input.txt')
 
-location = Data[0:10000, 0:2]    # Locations of the charges matrix
-charges = Data[0:10000, 2:]      # Sets of charges
+location = Data[0:10000, 0:2]   # Locations of the charges matrix
+charges = Data[0:10000, 2:]     # Sets of charges
 N = len(location)               # Number of points
 m = charges.shape[1]            # Sets of charge vectors
 nChebNodes = 5                  # Number of Chebyshev nodes( >= 3)
@@ -37,12 +37,12 @@ print(' Number of Chebyshev Nodes: %d ' % nChebNodes)
 # FAST MATRIX VECTOR PRODUCT ----------------------------------------------------------------------------------------- #
 # 1 Building FMM Tree
 start = perf_counter()
-ATree = H2_2D_Tree(nChebNodes, charges, location, N, m)     # FMM Tree
+ATree = H2_2D_Tree(nChebNodes, charges, location, N, m)  # FMM Tree
 print(' Total time taken for FMM(build tree) is: %f  seconds' % (perf_counter() - start))
 
 # 2 Calculating Potential
 start = perf_counter()
-kex1 = CustomKernels.exampleKernelB                         # Name of custom kernel
+kex1 = CustomKernels.exampleKernelA  # Name of the custom kernel
 potential_kex1 = calculate_Potential(kex1, ATree, charges)
 print(' Total time taken for FMM(calculations) is: %f seconds' % (perf_counter() - start))
 

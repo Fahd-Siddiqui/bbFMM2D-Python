@@ -13,7 +13,7 @@
 ########################################################################################################################
 
 ########################################################################################################################
-from numpy import zeros, dot
+from numpy import zeros, dot, array, meshgrid
 
 
 # -------------------------------------------------------------------------------------------------------------------- #
@@ -44,15 +44,14 @@ def set_Tree_Potential_Zero(node, rank):
 # -------------------------------------------------------------------------------------------------------------------- #
 def set_Node_Charge_Zero(node, rank):
     """Sets node charge to zero"""
-    if node.isLeaf:
-        node.charge = zeros([node.N, 1])
-        node.nodeCharge = zeros([rank, 1])
+    if not node.isEmpty:
         node.chargeComputed = False
-    else:
+        node.charge = zeros([node.N, 1])
         node.nodeCharge = zeros([rank, 1])
         for k in range(0, 4):
             set_Node_Charge_Zero(node.child[k], rank)
     return
+
 
 
 # -------------------------------------------------------------------------------------------------------------------- #
@@ -102,8 +101,7 @@ def calculate_Potential_4Args(custom_Kernel, tree, node, potential):
             node.potential += dot(node.R, node.nodePotential)
 
             # Self potential
-            node.potential += dot(custom_Kernel(node.N, node.location, node.N, node.location),
-                                  node.charge)
+            node.potential += dot(custom_Kernel(node.N, node.location, node.N, node.location), node.charge)
             potential = tranfer_Potential_To_Potential_Tree(node, potential)
         else:
             computePotential = False
@@ -112,9 +110,9 @@ def calculate_Potential_4Args(custom_Kernel, tree, node, potential):
                     if not node.neighbor[k].isEmpty:
                         if node.neighbor[k].isLeaf:
                             get_Charge(tree, node.neighbor[k])
-                            node.potential += dot(
-                                custom_Kernel(node.N, node.location, node.neighbor[k].N, node.neighbor[k].location),
-                                node.neighbor[k].charge)
+                            node.potential += \
+                                dot(custom_Kernel(node.N, node.location, node.neighbor[k].N, node.neighbor[k].location),
+                                    node.neighbor[k].charge)
                             computePotential = True
 
             # M2L Step three from the paper (page 5 Fong et al 2009)
@@ -175,11 +173,14 @@ def kernel_Cheb_2D(custom_Kernel, M, xVec, N, yVec):
 
     for i in range(0, M * M, M):
         mbym[i: i + M, 0] = xVec[0: M, 0]
-        mbym[i: i + M, 1] = xVec[i / M, 1]
+        mbym[i: i + M, 1] = xVec[i // M, 1]
 
     for i in range(0, N * N, N):
         nbyn[i: i + N, 0] = yVec[0: N, 0]
-        nbyn[i: i + N, 1] = yVec[i / N, 1]
+        nbyn[i: i + N, 1] = yVec[i // N, 1]
+
+    # mbym=array(meshgrid(xVec[:,0], xVec[:,1])).reshape(2, -1).T
+    # nbyn=array(meshgrid(yVec[:,0], yVec[:,1])).reshape(2, -1).T
 
     K = custom_Kernel(M * M, mbym, N * N, nbyn)
     return K
