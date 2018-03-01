@@ -53,7 +53,6 @@ def set_Node_Charge_Zero(node, rank):
     return
 
 
-
 # -------------------------------------------------------------------------------------------------------------------- #
 def update_Charge(Tree, node):
     """Updates the charges on the Tree"""
